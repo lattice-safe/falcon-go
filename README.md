@@ -3,7 +3,7 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/lattice-safe/falcon-go.svg)](https://pkg.go.dev/github.com/lattice-safe/falcon-go)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Pure Go implementation of **FN-DSA (FIPS 206)**, formerly Falcon — a lattice-based post-quantum digital signature scheme.
+Hardware-accelerated Go implementation (ARM64/AMD64 assembly) of **FN-DSA (FIPS 206)**, formerly Falcon — a lattice-based post-quantum digital signature scheme.
 
 Byte-for-byte compatible with
 [`github.com/lattice-safe/falcon-rs`](https://github.com/lattice-safe/falcon-rs).
