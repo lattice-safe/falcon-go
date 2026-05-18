@@ -1,6 +1,11 @@
 package falcon
 
-import "github.com/lattice-safe/falcon-go/internal/fndsa"
+import (
+	"crypto/rand"
+	"io"
+
+	"github.com/lattice-safe/falcon-go/internal/fndsa"
+)
 
 // ExpandedKey is a reusable signing key handle.
 //
@@ -10,9 +15,6 @@ import "github.com/lattice-safe/falcon-go/internal/fndsa"
 type ExpandedKey struct {
 	prepared *fndsa.PreparedKey
 }
-
-// FnDsaExpandedKey is kept as a compatibility alias.
-type FnDsaExpandedKey = ExpandedKey
 
 // Expand returns a reusable signing handle for this key pair.
 func (kp *KeyPair) Expand() (*ExpandedKey, error) {
@@ -32,7 +34,7 @@ func (ek *ExpandedKey) Sign(message []byte, domain Domain) (*Signature, error) {
 		return nil, ErrBadArgument
 	}
 	var seed [40]byte
-	if !readRandom(seed[:]) {
+	if _, err := io.ReadFull(rand.Reader, seed[:]); err != nil {
 		return nil, ErrRandom
 	}
 	return ek.SignDeterministic(message, seed[:], domain)

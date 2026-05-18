@@ -15,12 +15,6 @@ type KeyPair struct {
 	logn       uint
 }
 
-// FalconKeyPair is kept as a compatibility alias.
-type FalconKeyPair = KeyPair
-
-// FnDsaKeyPair is kept as a compatibility alias.
-type FnDsaKeyPair = KeyPair
-
 // Generate creates a fresh FN-DSA key pair for logn 9 or 10.
 func Generate(logn uint) (*KeyPair, error) {
 	if !isFIPSLogN(logn) {
@@ -169,9 +163,4 @@ func translateError(err error) error {
 		return nil
 	}
 	return ErrFormat
-}
-
-func readRandom(dst []byte) bool {
-	_, err := io.ReadFull(rand.Reader, dst)
-	return err == nil
 }

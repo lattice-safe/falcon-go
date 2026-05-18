@@ -50,9 +50,6 @@ func SignatureSize(logn uint) int {
 // to 255 bytes that is meant to be used for domain separation.
 type DomainContext []byte
 
-// A pre-allocated empty context string.
-var DOMAIN_NONE = DomainContext([]byte{})
-
 // Hash the message into a polynomial.
 //
 //	logn              degree

@@ -23,14 +23,9 @@ func SignatureSize(logn uint) (int, error) {
 	if !isFIPSLogN(logn) {
 		return 0, ErrBadArgument
 	}
-	switch logn {
-	case 9:
-		return 809, nil
-	case 10:
-		return 1577, nil
-	default:
-		return 0, ErrBadArgument
-	}
+	// CT size = 41 + ceil(maxSigBits[logn] * n / 8)
+	maxBits := [11]int{0, 10, 11, 11, 12, 12, 12, 12, 12, 12, 12}
+	return 41 + ((maxBits[logn]<<logn)+7)>>3, nil
 }
 
 // PaddedSignatureSize returns the FIPS/Rust padded signature size.

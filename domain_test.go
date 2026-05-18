@@ -6,13 +6,13 @@ import (
 )
 
 func TestDomainValidation(t *testing.T) {
-	if _, err := DomainContext(make([]byte, 256)); !errorsIs(err, ErrBadArgument) {
+	if _, err := DomainContext(make([]byte, 256)); err != ErrBadArgument {
 		t.Fatalf("DomainContext(256 bytes) error = %v, want ErrBadArgument", err)
 	}
 	if _, err := DomainContext(make([]byte, 255)); err != nil {
 		t.Fatalf("DomainContext(255 bytes) error = %v", err)
 	}
-	if _, err := DomainPrehashed(0, nil); !errorsIs(err, ErrBadArgument) {
+	if _, err := DomainPrehashed(0, nil); err != ErrBadArgument {
 		t.Fatalf("DomainPrehashed(0) error = %v, want ErrBadArgument", err)
 	}
 }
@@ -44,8 +44,4 @@ func TestDomainPrehash(t *testing.T) {
 	if !bytes.Equal(got, want) {
 		t.Fatalf("sha256 prehash mismatch: %x", got)
 	}
-}
-
-func errorsIs(err, target error) bool {
-	return err == target
 }

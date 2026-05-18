@@ -13,12 +13,6 @@ type Signature struct {
 	data []byte
 }
 
-// FalconSignature is kept as a compatibility alias.
-type FalconSignature = Signature
-
-// FnDsaSignature is kept as a compatibility alias.
-type FnDsaSignature = Signature
-
 // FromSignatureBytes validates and wraps encoded signature bytes.
 func FromSignatureBytes(data []byte) (*Signature, error) {
 	if len(data) < 41 {
@@ -98,11 +92,6 @@ func (s *Signature) Bytes() []byte {
 		return nil
 	}
 	return cloneBytes(s.data)
-}
-
-// ToBytes returns a copy of the encoded signature bytes.
-func (s *Signature) ToBytes() []byte {
-	return s.Bytes()
 }
 
 // Len returns the encoded signature length.
