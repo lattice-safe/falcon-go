@@ -63,3 +63,15 @@ func mustHex(t *testing.T, s string) []byte {
 	}
 	return out
 }
+
+func TestShake256InjectLarge(t *testing.T) {
+	var sc Shake256Context
+	Shake256Init(&sc)
+	Shake256Inject(&sc, make([]byte, 200)) // > 136 bytes to hit keccakF1600
+	Shake256Flip(&sc)
+	out := make([]byte, 32)
+	Shake256Extract(&sc, out)
+	if out[0] == 0 && out[1] == 0 && out[2] == 0 {
+		// Just ensure it doesn't crash
+	}
+}

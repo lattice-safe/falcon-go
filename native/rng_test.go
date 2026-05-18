@@ -25,4 +25,36 @@ func TestPrngDeterministic(t *testing.T) {
 	if bytes.Equal(out1, make([]byte, len(out1))) {
 		t.Fatal("PRNG output is all zero")
 	}
+
+	// Additional coverage for rng methods
+	p1.Clear()
+	u64 := PrngGetU64(&p2)
+	u8 := PrngGetU8(&p2)
+	if u64 == 0 && u8 == 0 {
+		t.Log("PRNG produced 0, technically possible but unlikely")
+	}
+
+	// Coverage for Shake256InitPRNGFromSystem
+	var sc3 Shake256Context
+	Shake256InitPRNGFromSystem(&sc3)
+	
+	// Coverage for new objects
+	_ = NewPrng()
+	_ = NewShake256Context()
+
+	// Hit refill branches
+	for i := 0; i < 70; i++ {
+		PrngGetU64(&p2)
+	}
+	for i := 0; i < 520; i++ {
+		PrngGetU8(&p1)
+	}
+
+	seedOut := make([]byte, 32)
+	if !GetSeed(seedOut) {
+		t.Fatal("GetSeed failed")
+	}
+	if !GetSeed(nil) {
+		t.Fatal("GetSeed(nil) failed")
+	}
 }

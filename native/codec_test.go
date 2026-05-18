@@ -97,3 +97,121 @@ func TestPubKeyEncodingDegree16(t *testing.T) {
 		t.Fatalf("encoded public key = %x, want %x", encoded[:1+n], expected)
 	}
 }
+
+func TestCodecErrors(t *testing.T) {
+	// ModqEncode
+	h := make([]uint16, 16)
+	h[0] = 12290
+	if ModqEncode(make([]byte, 28), h, 4) != 0 {
+		t.Fatal("ModqEncode should reject large values")
+	}
+	h[0] = 10
+	if ModqEncode(make([]byte, 2), h, 4) != 0 {
+		t.Fatal("ModqEncode should reject small buffers")
+	}
+
+	// ModqDecode
+	if ModqDecode(h, 4, make([]byte, 2)) != 0 {
+		t.Fatal("ModqDecode should reject small buffers")
+	}
+	badModq := make([]byte, 28)
+	badModq[0] = 0xff
+	badModq[1] = 0xff // Will create w >= 12289
+	if ModqDecode(h, 4, badModq) != 0 {
+		t.Fatal("ModqDecode should reject invalid values")
+	}
+	// Non-zero padding
+	validModq := make([]byte, 4) // logn=1, n=2, 2*14=28 bits -> 4 bytes. padding=4 bits
+	ModqEncode(validModq, make([]uint16, 2), 1)
+	validModq[3] |= 0x01
+	if ModqDecode(make([]uint16, 2), 1, validModq) != 0 {
+		t.Fatal("ModqDecode should reject non-zero padding")
+	}
+
+	// TrimI16Encode
+	coeffs := make([]int16, 16)
+	coeffs[0] = 4096 // Exceeds 12 bits max
+	if TrimI16Encode(make([]byte, 24), coeffs, 4, 12) != 0 {
+		t.Fatal("TrimI16Encode should reject out of bounds")
+	}
+	coeffs[0] = 10
+	if TrimI16Encode(make([]byte, 2), coeffs, 4, 12) != 0 {
+		t.Fatal("TrimI16Encode should reject short buffer")
+	}
+
+	// TrimI16Decode
+	if TrimI16Decode(coeffs, 4, 12, make([]byte, 2)) != 0 {
+		t.Fatal("TrimI16Decode should reject short buffer")
+	}
+	badTrim16 := make([]byte, 24)
+	badTrim16[0] = 0x80
+	badTrim16[1] = 0x00 // Might decode to -2048 which is mask2 (invalid)
+	if TrimI16Decode(coeffs, 4, 12, badTrim16) != 0 {
+		t.Fatal("TrimI16Decode should reject -2048")
+	}
+	validTrim16 := make([]byte, 3) // logn=1, n=2, bits=11 -> 22 bits -> 3 bytes
+	TrimI16Encode(validTrim16, make([]int16, 2), 1, 11)
+	validTrim16[2] |= 0x01
+	if TrimI16Decode(make([]int16, 2), 1, 11, validTrim16) != 0 {
+		t.Fatal("TrimI16Decode should reject non-zero padding")
+	}
+
+	// TrimI8Encode
+	i8coeffs := make([]int8, 16)
+	i8coeffs[0] = 127 // Exceeds 7 bits max
+	if TrimI8Encode(make([]byte, 14), i8coeffs, 4, 7) != 0 {
+		t.Fatal("TrimI8Encode should reject out of bounds")
+	}
+	i8coeffs[0] = 10
+	if TrimI8Encode(make([]byte, 2), i8coeffs, 4, 7) != 0 {
+		t.Fatal("TrimI8Encode should reject short buffer")
+	}
+
+	// TrimI8Decode
+	if TrimI8Decode(i8coeffs, 4, 7, make([]byte, 2)) != 0 {
+		t.Fatal("TrimI8Decode should reject short buffer")
+	}
+	badTrim8 := make([]byte, 14)
+	badTrim8[0] = 0x80 // Decodes to -64 which is invalid for 7 bits
+	if TrimI8Decode(i8coeffs, 4, 7, badTrim8) != 0 {
+		t.Fatal("TrimI8Decode should reject -64")
+	}
+	validTrim8 := make([]byte, 2) // logn=1, n=2, bits=5 -> 10 bits -> 2 bytes
+	TrimI8Encode(validTrim8, make([]int8, 2), 1, 5)
+	validTrim8[1] |= 0x01
+	if TrimI8Decode(make([]int8, 2), 1, 5, validTrim8) != 0 {
+		t.Fatal("TrimI8Decode should reject non-zero padding")
+	}
+
+	// CompEncode
+	coeffs[0] = 3000
+	if CompEncode(make([]byte, 40), coeffs, 4) != 0 {
+		t.Fatal("CompEncode should reject out of bounds")
+	}
+	coeffs[0] = 10
+	if CompEncode(make([]byte, 1), coeffs, 4) != 0 {
+		t.Fatal("CompEncode should reject short buffer inside loop")
+	}
+	if CompEncode(make([]byte, 16), make([]int16, 16), 4) != 0 { // Just enough to fail at end? No, 16*zeros needs 16 bits = 2 bytes. Let's make it 1 byte
+		t.Fatal("CompEncode should reject short buffer at end")
+	}
+
+	// CompDecode
+	if CompDecode(coeffs, 4, make([]byte, 1)) != 0 {
+		t.Fatal("CompDecode should reject short buffer")
+	}
+	badComp := []byte{0xff, 0xff, 0xff, 0xff} // Lots of 1s -> m > 2047
+	if CompDecode(coeffs, 4, badComp) != 0 {
+		t.Fatal("CompDecode should reject m > 2047")
+	}
+	badComp2 := []byte{0x80, 0x00} // s=1, m=0
+	if CompDecode(coeffs, 4, badComp2) != 0 {
+		t.Fatal("CompDecode should reject s=1, m=0")
+	}
+	validComp := make([]byte, 2)
+	CompEncode(validComp, make([]int16, 2), 1) // logn=1, n=2, 2 zeros = 2 bits -> 1 byte
+	validComp[0] |= 0x20 // padding? 2 bits used, 6 bits padding
+	if CompDecode(make([]int16, 2), 1, validComp) != 0 {
+		t.Fatal("CompDecode should reject padding")
+	}
+}

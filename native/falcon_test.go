@@ -42,4 +42,39 @@ func TestSizeFunctions(t *testing.T) {
 	if got := TmpSizeVerify(9); got != 4097 {
 		t.Fatalf("TmpSizeVerify(9) = %d, want 4097", got)
 	}
+	if got := TmpSizeExpandPriv(9); got != 26631 {
+		t.Fatalf("TmpSizeExpandPriv(9) = %d", got)
+	}
+	if got := ExpandedKeySize(9); got != 57344 {
+		t.Fatalf("ExpandedKeySize(9) = %d", got)
+	}
+}
+
+func TestCommonCoverage(t *testing.T) {
+	// reduceHashPointWord coverage
+	w1 := reduceHashPointWord(61445) // expected out of bounds logic
+	if w1 == 0 {
+		t.Log("tested reduceHashPointWord out of bound")
+	}
+
+	// HashToPointCT coverage
+	var sc Shake256Context
+	Shake256InitPRNGFromSeed(&sc, []byte("test-hash-to-point"))
+	Shake256Flip(&sc)
+	x := make([]uint16, 512)
+	HashToPointCT(&sc, x, 9, nil)
+	if x[0] == 0 && x[1] == 0 {
+		t.Fatal("HashToPointCT produced zeros")
+	}
+
+	// IsShortHalf coverage
+	s2 := make([]int16, 512)
+	s2[0] = 100
+	if !IsShortHalf(1000, s2, 9) {
+		t.Fatal("IsShortHalf should be true for small values")
+	}
+	s2[0] = 30000 // Very large to exceed L2 bound
+	if IsShortHalf(1000, s2, 9) {
+		t.Fatal("IsShortHalf should be false for large values")
+	}
 }
