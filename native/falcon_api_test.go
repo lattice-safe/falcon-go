@@ -246,7 +246,7 @@ func TestFalconNativeErrors(t *testing.T) {
 	if rc := FalconVerifyFinish(badSigFormat, SigCT, pk, &hd, nil); rc != ErrFormat {
 		t.Fatalf("FalconVerifyFinish mismatch sigFormat rc = %d", rc)
 	}
-	
+
 	badSigFormatCT := cloneBytesNative(sig)
 	badSigFormatCT[0] = 0x59
 	if rc := FalconVerifyFinish(badSigFormatCT, SigPadded, pk, &hd, nil); rc != ErrFormat {
@@ -289,4 +289,3 @@ func cloneBytesNative(src []byte) []byte {
 	copy(dst, src)
 	return dst
 }
-

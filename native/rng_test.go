@@ -37,7 +37,7 @@ func TestPrngDeterministic(t *testing.T) {
 	// Coverage for Shake256InitPRNGFromSystem
 	var sc3 Shake256Context
 	Shake256InitPRNGFromSystem(&sc3)
-	
+
 	// Coverage for new objects
 	_ = NewPrng()
 	_ = NewShake256Context()

@@ -210,7 +210,7 @@ func TestCodecErrors(t *testing.T) {
 	}
 	validComp := make([]byte, 2)
 	CompEncode(validComp, make([]int16, 2), 1) // logn=1, n=2, 2 zeros = 2 bits -> 1 byte
-	validComp[0] |= 0x20 // padding? 2 bits used, 6 bits padding
+	validComp[0] |= 0x20                       // padding? 2 bits used, 6 bits padding
 	if CompDecode(make([]int16, 2), 1, validComp) != 0 {
 		t.Fatal("CompDecode should reject padding")
 	}

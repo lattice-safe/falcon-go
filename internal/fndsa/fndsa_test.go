@@ -42,7 +42,7 @@ func TestVerifyWeak(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Sign failed: %v", err)
 	}
-	
+
 	if !VerifyWeak(pk, nil, crypto.Hash(0), []byte("test"), sig) {
 		t.Fatal("VerifyWeak failed")
 	}
@@ -65,7 +65,7 @@ func TestVerify(t *testing.T) {
 	pre, _ := PrepareSigningKey(sk)
 	nonce := make([]byte, 40)
 	sig, _ := pre.SignPaddedWithNonceSampler(nonce, make([]byte, 48*1024), nil, crypto.Hash(0), []byte("test"))
-	
+
 	if !Verify(pk, nil, crypto.Hash(0), []byte("test"), sig) {
 		t.Fatal("Verify failed")
 	}
@@ -76,7 +76,7 @@ func TestExportErrors(t *testing.T) {
 	if err == nil {
 		t.Fatal("MakePublic should fail on short key")
 	}
-	
+
 	badSk := make([]byte, 1282) // PrivKeySize(9) + 1
 	badSk[0] = 0x59
 	_, err = MakePublic(badSk)

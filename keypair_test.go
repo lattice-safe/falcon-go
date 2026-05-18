@@ -89,7 +89,7 @@ func TestKeyPairErrors(t *testing.T) {
 	if err != ErrFormat {
 		t.Fatalf("FromKeys with nil private key expected ErrFormat, got: %v", err)
 	}
-	
+
 	// Bad prefix for private key
 	badPrefixPriv := cloneBytes(kp.PrivateKey())
 	badPrefixPriv[0] = 0x69
@@ -156,7 +156,7 @@ func TestKeyPairErrors(t *testing.T) {
 	if err != ErrFormat {
 		t.Fatalf("PublicKeyFromPrivate with short private key expected ErrFormat, got: %v", err)
 	}
-	
+
 	// Test FromPrivateKey invalid
 	_, err = FromPrivateKey(kp.PrivateKey()[:10])
 	if err != ErrFormat {
