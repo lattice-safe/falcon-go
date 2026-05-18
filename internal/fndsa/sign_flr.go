@@ -1,3 +1,5 @@
+//go:build fndsa_fp_emu || !(386.sse2 || amd64 || arm64 || riscv64)
+
 package fndsa
 
 // Some useful constants:

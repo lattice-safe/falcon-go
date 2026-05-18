@@ -43,7 +43,7 @@ func KeyGen(logn uint, rng io.Reader) (skey []byte, vkey []byte, err error) {
 	tmp_fxr := make([]fxr, 5*(n>>1))
 	tmp_u16 := make([]uint16, 2*n)
 	keygen_inner(logn, seed[:], f, g, F, G, tmp, tmp_fxr, tmp_u16)
-	skey, vkey = encode_keypair(logn, f, g, F, G, tmp_u16)
+	skey, vkey = encode_keypair(logn, f, g, F, tmp_u16)
 	return
 }
 
@@ -93,7 +93,7 @@ func keygen_inner(logn uint, seed []byte,
 // Encode the private and public keys, given the four secret polynomials.
 // tmp_u16[] shall have size at least 2*n elements.
 func encode_keypair(logn uint, f []int8, g []int8,
-	F []int8, G []int8, tmp_u16 []uint16) (skey []byte, vkey []byte) {
+	F []int8, tmp_u16 []uint16) (skey []byte, vkey []byte) {
 
 	n := 1 << logn
 

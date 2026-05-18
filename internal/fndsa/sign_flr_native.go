@@ -21,16 +21,6 @@ func f64mk(i int64, e int32) f64 {
 	return math.Ldexp(float64(i), int(e))
 }
 
-// Convert a f64 value to its 64-bit representation.
-func f64_to_bits(x f64) uint64 {
-	return math.Float64bits(x)
-}
-
-// Make a f64 value from its 64-bit representation.
-func f64_from_bits(v uint64) f64 {
-	return math.Float64frombits(v)
-}
-
 // Convert integer i to a floating-point value (with appropriate rounding).
 // The source integer MUST NOT be equal to -2^63. This function needs not
 // be constant-time.
@@ -41,12 +31,6 @@ func f64_of(i int64) f64 {
 // Same as f64_of() but input is 32-bit. This function MUST be constant-time.
 func f64_of_i32(i int32) f64 {
 	return float64(i)
-}
-
-// Given integer i and scale sc, return i*2^sc. Source integer MUST be
-// in the [-(2^63-1), +(2^63-1)] range (i.e. value -2^63 is forbidden).
-func f64_scaled(i int64, sc int32) f64 {
-	return math.Ldexp(float64(i), int(sc))
 }
 
 // f64_rint() is implemented either in assembly or with native code:
@@ -87,11 +71,6 @@ func f64_half(x f64) f64 {
 	return float64(x * 0.5)
 }
 
-// Doubling.
-func f64_double(x f64) f64 {
-	return float64(x * 2.0)
-}
-
 // Multiplication.
 func f64_mul(x f64, y f64) f64 {
 	return float64(x * y)
@@ -100,11 +79,6 @@ func f64_mul(x f64, y f64) f64 {
 // Squaring.
 func f64_sqr(x f64) f64 {
 	return float64(x * x)
-}
-
-// Division.
-func f64_div(x f64, y f64) f64 {
-	return float64(x / y)
 }
 
 // Inversion.
@@ -133,9 +107,4 @@ var inv_pow2 = []float64{
 // Divide value by 2^e.
 func f64_div2e(x f64, e uint32) f64 {
 	return float64(x * inv_pow2[uint(e)])
-}
-
-// Get the absolute value.
-func f64_abs(x f64) f64 {
-	return math.Float64frombits(math.Float64bits(x) & 0x7FFFFFFFFFFFFFFF)
 }

@@ -8,9 +8,3 @@ package fndsa
 func ursh(x uint64, n uint32) uint64 {
 	return x >> n
 }
-func irsh(x int64, n uint32) int64 {
-	return x >> n
-}
-func ulsh(x uint64, n uint32) uint64 {
-	return x << n
-}

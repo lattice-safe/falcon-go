@@ -11,7 +11,7 @@ import (
 type fxr = uint64
 
 const fxr_ZERO = fxr(0)
-const fxr_ONE = fxr(uint64(1) << 32)
+
 
 // Convert an integer to fxr.
 func fxr_of(j int32) fxr {
@@ -31,11 +31,6 @@ func fxr_add(x fxr, y fxr) fxr {
 // Subtraction.
 func fxr_sub(x fxr, y fxr) fxr {
 	return x - y
-}
-
-// Doubling.
-func fxr_double(x fxr) fxr {
-	return x << 1
 }
 
 // Negation.
@@ -130,11 +125,6 @@ func fxr_div(x fxr, y fxr) fxr {
 	q = (q ^ -sx) + sx
 
 	return q
-}
-
-// Inversion.
-func fxr_inv(x fxr) fxr {
-	return fxr_div(fxr_ONE, x)
 }
 
 // Comparison (lower-than).

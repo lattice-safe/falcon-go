@@ -103,34 +103,6 @@ func mp_Rx31(e int, p uint32, p0i uint32, r2 uint32) uint32 {
 	}
 }
 
-// Division modulo p (x = dividend, y = divisor).
-// If y is not invertible (i.e. y = 0), then 0 is returned.
-func mp_div(x uint32, y uint32, p uint32) uint32 {
-	// Binary GCD.
-	a := y
-	b := p
-	u := x
-	v := uint32(0)
-	for i := 0; i < 62; i++ {
-		a_odd := -(a & 1)
-		swap := tbmask(a-b) & a_odd
-		t1 := swap & (a ^ b)
-		a ^= t1
-		b ^= t1
-		t2 := swap & (u ^ v)
-		u ^= t2
-		v ^= t2
-		a -= a_odd & b
-		u = mp_sub(u, a_odd&v, p)
-		a >>= 1
-		u = mp_half(u, p)
-	}
-
-	// GCD is in b; it is 1 if and only if y was invertible. Otherwise,
-	// the GCD is greater than 1.
-	return v & tbmask(b-2)
-}
-
 // Compute the roots for NTT and inverse NTT; given g (primitive 2048-th
 // root of 1 modulo p), this fills gm[] and igm[] with powers of g and 1/g:
 //

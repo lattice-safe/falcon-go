@@ -30,7 +30,7 @@ func KeyGenDeterministic(logn uint, seed []byte) (skey []byte, vkey []byte, err 
 	tmpFxr := make([]fxr, 5*(n>>1))
 	tmpU16 := make([]uint16, 2*n)
 	keygen_inner(logn, seed, f, g, F, G, tmp, tmpFxr, tmpU16)
-	skey, vkey = encode_keypair(logn, f, g, F, G, tmpU16)
+	skey, vkey = encode_keypair(logn, f, g, F, tmpU16)
 	return skey, vkey, nil
 }
 

@@ -29,11 +29,6 @@ func f64_to_bits(x f64) uint64 {
 	return x
 }
 
-// Make a f64 value from its 64-bit representation.
-func f64_from_bits(v uint64) f64 {
-	return v
-}
-
 // Make a value out of the sign bit s, exponent e, and mantissa m.
 // Rules:
 //
@@ -304,13 +299,6 @@ func f64_half(x f64) f64 {
 	return y + (((x ^ y) >> 11) & b52)
 }
 
-// Doubling.
-func f64_double(x f64) f64 {
-	// We add 1 to the exponent field, unless the value is zero.
-	d := ((x & 0x7FF0000000000000) + 0x7FF0000000000000) >> 11
-	return x + (d & b52)
-}
-
 // Multiplication.
 func f64_mul(x f64, y f64) f64 {
 	// Extract absolute values of mantissas, assuming non-zero
@@ -481,15 +469,3 @@ func f64_div2e(x f64, e uint32) f64 {
 	return y + (ee & uint64(int64(ov)>>11))
 }
 
-// Multiply value by 2^63.
-func f64_mul2e(x f64) f64 {
-	// We add 63 to the exponent field, except if that field was zero,
-	// because the double of zero is still zero.
-	d := uint64(int64((x&0x7FF0000000000000)-b52) >> 12)
-	return x + ((uint64(63) << 52) & ^d)
-}
-
-// Get the absolute value.
-func f64_abs(x f64) f64 {
-	return x & m63
-}

@@ -15,13 +15,6 @@ const (
 	PreHashSHA512
 )
 
-var (
-	// ASN.1 DER OID for id-sha256 (2.16.840.1.101.3.4.2.1).
-	oidSHA256 = []byte{0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01}
-	// ASN.1 DER OID for id-sha512 (2.16.840.1.101.3.4.2.3).
-	oidSHA512 = []byte{0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03}
-)
-
 // Domain captures the FIPS 206 domain separation mode used for signing.
 type Domain struct {
 	context []byte
@@ -61,24 +54,6 @@ func (d Domain) validate() error {
 		return ErrBadArgument
 	}
 	return nil
-}
-
-func (d Domain) phFlag() byte {
-	if d.prehash {
-		return 0x01
-	}
-	return 0x00
-}
-
-func (d Domain) oid() []byte {
-	switch d.alg {
-	case PreHashSHA256:
-		return oidSHA256
-	case PreHashSHA512:
-		return oidSHA512
-	default:
-		return nil
-	}
 }
 
 func (d Domain) messageForHash(message []byte) []byte {

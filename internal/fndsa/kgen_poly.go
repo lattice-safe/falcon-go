@@ -512,14 +512,3 @@ func poly_sub_kfg_scaled_depth1(logn_top uint,
 		}
 	}
 }
-
-// Compute the squared norm of a small polynomial.
-func poly_sqnorm(logn uint, f []int8) uint32 {
-	n := 1 << logn
-	s := uint32(0)
-	for i := 0; i < n; i++ {
-		x := int32(f[i])
-		s += uint32(x * x)
-	}
-	return s
-}
