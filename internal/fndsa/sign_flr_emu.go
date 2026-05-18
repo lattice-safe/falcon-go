@@ -468,4 +468,3 @@ func f64_div2e(x f64, e uint32) f64 {
 	ov := x ^ y
 	return y + (ee & uint64(int64(ov)>>11))
 }
-

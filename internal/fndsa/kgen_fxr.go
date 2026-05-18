@@ -12,7 +12,6 @@ type fxr = uint64
 
 const fxr_ZERO = fxr(0)
 
-
 // Convert an integer to fxr.
 func fxr_of(j int32) fxr {
 	return uint64(j) << 32
