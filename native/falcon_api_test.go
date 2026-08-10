@@ -262,8 +262,58 @@ func TestFalconNativeErrors(t *testing.T) {
 
 	// padCompressedForVerify coverage
 	tooLongSig := make([]byte, SigPaddedSize(9)+1)
+	tooLongSig[0] = 0x39
 	if padCompressedForVerify(tooLongSig, 9) != nil {
 		t.Fatalf("padCompressedForVerify should fail on too long sig")
+	}
+
+	// VerifyFinish with SigCompressed oversized
+	if rc := FalconVerifyFinish(tooLongSig, SigCompressed, pk, &hd, nil); rc != ErrFormat {
+		t.Fatalf("FalconVerifyFinish compressed too long rc = %d", rc)
+	}
+
+	// VerifyFinish with SigCT verification failure
+	corruptSigCT := cloneBytesNative(sig)
+	corruptSigCT[45] ^= 0xff
+	if rc := FalconVerifyFinish(corruptSigCT, SigCT, pk, &hd, nil); rc != ErrBadSig {
+		t.Fatalf("FalconVerifyFinish bad SigCT rc = %d", rc)
+	}
+
+	// VerifyFinish auto-detect (sigType 0) with 0x50 header verification failure
+	if rc := FalconVerifyFinish(corruptSigCT, 0, pk, &hd, nil); rc != ErrBadSig {
+		t.Fatalf("FalconVerifyFinish auto 0x50 bad sig rc = %d", rc)
+	}
+
+	// VerifyFinish auto-detect (sigType 0) with 0x90 header
+	badHeader0x90 := cloneBytesNative(sig)
+	badHeader0x90[0] = 0x99
+	if rc := FalconVerifyFinish(badHeader0x90, 0, pk, &hd, nil); rc != ErrBadSig {
+		t.Fatalf("FalconVerifyFinish auto bad header rc = %d", rc)
+	}
+
+	// hashDataPayload short transcript error & wrong nonce
+	var shortHd Shake256Context
+	Shake256Init(&shortHd)
+	Shake256Inject(&shortHd, []byte("short"))
+	if rc := FalconVerifyFinish(sig, SigCT, pk, &shortHd, nil); rc != ErrFormat {
+		t.Fatalf("FalconVerifyFinish short transcript rc = %d", rc)
+	}
+
+	var wrongNonceHd Shake256Context
+	Shake256Init(&wrongNonceHd)
+	Shake256Inject(&wrongNonceHd, bytes.Repeat([]byte{0xAA}, 40)) // wrong nonce
+	if rc := FalconVerifyFinish(sig, SigCT, pk, &wrongNonceHd, nil); rc != ErrFormat {
+		t.Fatalf("FalconVerifyFinish wrong nonce rc = %d", rc)
+	}
+
+	// FalconSignDyn nil rng
+	if rc := FalconSignDyn(nil, sig, &sigLen, SigCT, sk, []byte("msg"), nil); rc != ErrBadArg {
+		t.Fatalf("FalconSignDyn nil rng rc = %d", rc)
+	}
+
+	// FalconVerify short sig
+	if rc := FalconVerify(sig[:10], SigCT, pk, []byte("msg"), nil); rc != ErrFormat {
+		t.Fatalf("FalconVerify short sig rc = %d", rc)
 	}
 
 	// privateLogN / publicLogN coverage

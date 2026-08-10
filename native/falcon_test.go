@@ -30,6 +30,10 @@ func TestSizeFunctions(t *testing.T) {
 		t.Fatal("invalid logn signature sizes must return zero")
 	}
 
+	if PrivKeySize(3) != 25 || PubKeySize(1) != 5 || SigCTSize(3) != 52 || TmpSizeKeygen(3) != 303 {
+		t.Fatal("small logn size helpers mismatch")
+	}
+
 	if got := TmpSizeKeygen(9); got != 15879 {
 		t.Fatalf("TmpSizeKeygen(9) = %d, want 15879", got)
 	}

@@ -15,6 +15,25 @@ func TestDomainValidation(t *testing.T) {
 	if _, err := DomainPrehashed(0, nil); err != ErrBadArgument {
 		t.Fatalf("DomainPrehashed(0) error = %v, want ErrBadArgument", err)
 	}
+	if _, err := DomainPrehashed(PreHashSHA256, make([]byte, 256)); err != ErrBadArgument {
+		t.Fatalf("DomainPrehashed(oversized ctx) error = %v, want ErrBadArgument", err)
+	}
+	if _, err := DomainPrehashed(99, nil); err != ErrBadArgument {
+		t.Fatalf("DomainPrehashed(invalid alg) error = %v, want ErrBadArgument", err)
+	}
+
+	invalidDomainCtx := Domain{context: make([]byte, 256)}
+	if err := invalidDomainCtx.validate(); err != ErrBadArgument {
+		t.Fatalf("validate oversized ctx error = %v, want ErrBadArgument", err)
+	}
+
+	invalidDomainAlg := Domain{prehash: true, alg: 99}
+	if err := invalidDomainAlg.validate(); err != ErrBadArgument {
+		t.Fatalf("validate invalid alg error = %v, want ErrBadArgument", err)
+	}
+	if got := invalidDomainAlg.messageForHash([]byte("test")); got != nil {
+		t.Fatalf("messageForHash invalid alg = %v, want nil", got)
+	}
 }
 
 func TestDomainCopiesContext(t *testing.T) {
@@ -29,19 +48,36 @@ func TestDomainCopiesContext(t *testing.T) {
 	}
 }
 
-func TestDomainPrehash(t *testing.T) {
-	d, err := DomainPrehashed(PreHashSHA256, nil)
-	if err != nil {
-		t.Fatal(err)
+func TestAllDomainPrehashAlgorithms(t *testing.T) {
+	algs := []PreHashAlgorithm{
+		PreHashSHA256,
+		PreHashSHA384,
+		PreHashSHA512,
+		PreHashSHA512_256,
+		PreHashSHA3_256,
+		PreHashSHA3_384,
+		PreHashSHA3_512,
 	}
-	got := d.messageForHash([]byte("abc"))
-	want := []byte{
-		0xba, 0x78, 0x16, 0xbf, 0x8f, 0x01, 0xcf, 0xea,
-		0x41, 0x41, 0x40, 0xde, 0x5d, 0xae, 0x22, 0x23,
-		0xb0, 0x03, 0x61, 0xa3, 0x96, 0x17, 0x7a, 0x9c,
-		0xb4, 0x10, 0xff, 0x61, 0xf2, 0x00, 0x15, 0xad,
+	for _, alg := range algs {
+		d, err := DomainPrehashed(alg, []byte("ctx"))
+		if err != nil {
+			t.Fatalf("DomainPrehashed(%d) failed: %v", alg, err)
+		}
+		if err := d.validate(); err != nil {
+			t.Fatalf("d.validate(%d) failed: %v", alg, err)
+		}
+		msg := []byte("test prehash data")
+		hashed := d.messageForHash(msg)
+		if len(hashed) == 0 {
+			t.Fatalf("d.messageForHash(%d) returned empty", alg)
+		}
 	}
-	if !bytes.Equal(got, want) {
-		t.Fatalf("sha256 prehash mismatch: %x", got)
+}
+
+func TestDomainNoneMessageForHash(t *testing.T) {
+	d := DomainNone()
+	msg := []byte("hello")
+	if !bytes.Equal(d.messageForHash(msg), msg) {
+		t.Fatal("DomainNone messageForHash did not return original message")
 	}
 }

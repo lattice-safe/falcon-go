@@ -2,6 +2,6 @@ package main
 
 import "testing"
 
-func TestSignVerifyExample(t *testing.T) {
+func TestMainSignVerify(t *testing.T) {
 	main()
 }

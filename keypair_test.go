@@ -66,7 +66,7 @@ func TestKeyPairErrors(t *testing.T) {
 		t.Fatalf("Generate(8) expected ErrBadArgument, got: %v", err)
 	}
 
-	// Test GenerateDeterministic invalid
+	// Test GenerateDeterministic invalid logn
 	_, err = GenerateDeterministic(nil, 8)
 	if err != ErrBadArgument {
 		t.Fatalf("GenerateDeterministic(nil, 8) expected ErrBadArgument, got: %v", err)
@@ -136,6 +136,21 @@ func TestKeyPairErrors(t *testing.T) {
 		t.Fatalf("FromKeys with wrong public key content expected ErrFormat")
 	}
 
+	// Corrupt private key content (zero out f so f is not invertible) that passes size check but fails MakePublic
+	corruptPriv := cloneBytes(kp.PrivateKey())
+	for i := 1; i < 200; i++ {
+		corruptPriv[i] = 0x00
+	}
+	_, err = FromPrivateKey(corruptPriv)
+	if err == nil {
+		t.Fatalf("FromPrivateKey with corrupt key expected error")
+	}
+
+	_, err = FromKeys(corruptPriv, kp.PublicKey())
+	if err == nil {
+		t.Fatalf("FromKeys with corrupt private key expected error")
+	}
+
 	// Test FromKeys invalid (bad sizes)
 	_, err = FromKeys(kp.PrivateKey()[:10], kp.PublicKey())
 	if err != ErrFormat {
@@ -170,7 +185,6 @@ func TestKeyPairErrors(t *testing.T) {
 	}
 
 	// Test translateError
-	// Internal coverage
 	err = translateError(errors.New("falcon: bad argument"))
 	if err != ErrFormat {
 		t.Fatalf("translateError expected ErrFormat, got %v", err)

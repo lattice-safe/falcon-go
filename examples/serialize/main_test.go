@@ -2,6 +2,6 @@ package main
 
 import "testing"
 
-func TestSerializeExample(t *testing.T) {
+func TestMainSerialize(t *testing.T) {
 	main()
 }

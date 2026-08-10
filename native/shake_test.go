@@ -2,7 +2,9 @@ package native
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/hex"
+	"io"
 	"testing"
 )
 
@@ -74,4 +76,20 @@ func TestShake256InjectLarge(t *testing.T) {
 	if out[0] == 0 && out[1] == 0 && out[2] == 0 {
 		// Just ensure it doesn't crash
 	}
+}
+
+type errReaderNative struct{}
+
+func (errReaderNative) Read(p []byte) (n int, err error) {
+	return 0, io.EOF
+}
+
+func TestShake256InitPRNGFromSystemError(t *testing.T) {
+	oldReader := rand.Reader
+	rand.Reader = errReaderNative{}
+	var sc Shake256Context
+	if rc := Shake256InitPRNGFromSystem(&sc); rc != ErrRandom {
+		t.Fatalf("Shake256InitPRNGFromSystem with broken rand expected ErrRandom, got %d", rc)
+	}
+	rand.Reader = oldReader
 }

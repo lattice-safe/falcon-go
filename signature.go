@@ -113,8 +113,18 @@ func domainInputs(domain Domain, message []byte) (fndsa.DomainContext, crypto.Ha
 	switch domain.alg {
 	case PreHashSHA256:
 		return ctx, crypto.SHA256, domain.messageForHash(message), nil
+	case PreHashSHA384:
+		return ctx, crypto.SHA384, domain.messageForHash(message), nil
 	case PreHashSHA512:
 		return ctx, crypto.SHA512, domain.messageForHash(message), nil
+	case PreHashSHA512_256:
+		return ctx, crypto.SHA512_256, domain.messageForHash(message), nil
+	case PreHashSHA3_256:
+		return ctx, crypto.SHA3_256, domain.messageForHash(message), nil
+	case PreHashSHA3_384:
+		return ctx, crypto.SHA3_384, domain.messageForHash(message), nil
+	case PreHashSHA3_512:
+		return ctx, crypto.SHA3_512, domain.messageForHash(message), nil
 	default:
 		return nil, 0, nil, ErrBadArgument
 	}

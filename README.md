@@ -5,18 +5,18 @@
 
 Hardware-accelerated Go implementation (ARM64/AMD64 assembly) of **FN-DSA (FIPS 206)**, formerly Falcon — a lattice-based post-quantum digital signature scheme.
 
-Byte-for-byte compatible with
-[`github.com/lattice-safe/falcon-rs`](https://github.com/lattice-safe/falcon-rs).
+Byte-for-byte compatible with [`github.com/lattice-safe/falcon-rs`](https://github.com/lattice-safe/falcon-rs).
 
 ## Features
 
 - **FN-DSA-512** and **FN-DSA-1024** key generation, signing, and verification
 - **FIPS 206 domain separation** — `DomainNone`, `DomainContext`, `DomainPrehashed`
-- **HashFN-DSA** — SHA-256, SHA-384, SHA-512, SHA3-256, SHA3-384, SHA3-512
-- **Deterministic signing** for reproducible test vectors
+- **HashFN-DSA** — SHA-256, SHA-384, SHA-512, SHA-512/256, SHA3-256, SHA3-384, SHA3-512
+- **Deterministic signing** for reproducible FIPS 206 test vectors
 - **Expanded key** handle for amortized multi-signature workloads
 - **Key import/export** — private key, public key, signature serialization round-trips
 - **Native low-level API** — C-reference-style `falcon_*` wrappers in `native/`
+- **Comprehensive test suite** — Verified against FIPS KAT vectors with high test coverage and race detection
 - **No CGo** — pure Go, single dependency (`golang.org/x/crypto`)
 
 ## Install

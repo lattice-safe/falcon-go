@@ -2,6 +2,6 @@ package main
 
 import "testing"
 
-func TestExpandKeyExample(t *testing.T) {
+func TestMainExpandKey(t *testing.T) {
 	main()
 }

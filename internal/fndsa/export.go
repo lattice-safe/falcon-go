@@ -107,6 +107,23 @@ func (pk *PreparedKey) SignCTWithNonceSampler(nonce []byte, samplerStream []byte
 	return sig, nil
 }
 
+// SignPaddedDeterministic signs with an explicit seed and returns padded compressed format.
+func (pk *PreparedKey) SignPaddedDeterministic(seed []byte, ctx DomainContext, id crypto.Hash, data []byte) ([]byte, error) {
+	if pk == nil {
+		return nil, errors.New("Invalid signing key")
+	}
+	n := 1 << pk.logn
+	tmpI16 := make([]int16, n)
+	tmpU16 := make([]uint16, n)
+	tmpF64 := make([]f64, n*9)
+	sig := make([]byte, SignatureSize(pk.logn))
+	err := sign_core(pk.logn, pk.f, pk.g, pk.F, pk.G, pk.hashedVK[:], ctx, id, data, seed, sig, tmpI16, tmpU16, tmpF64, false)
+	if err != nil {
+		return nil, err
+	}
+	return sig, nil
+}
+
 // SignPaddedWithNonceSampler signs with an explicit nonce and returns padded compressed format.
 func (pk *PreparedKey) SignPaddedWithNonceSampler(nonce []byte, samplerStream []byte, ctx DomainContext, id crypto.Hash, data []byte) ([]byte, error) {
 	if pk == nil {

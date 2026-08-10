@@ -204,7 +204,7 @@ func TestCodecErrors(t *testing.T) {
 	if CompDecode(coeffs, 4, badComp) != 0 {
 		t.Fatal("CompDecode should reject m > 2047")
 	}
-	badComp2 := []byte{0x80, 0x00} // s=1, m=0
+	badComp2 := []byte{0x80, 0x80} // s=1, m=0 (minus zero)
 	if CompDecode(coeffs, 4, badComp2) != 0 {
 		t.Fatal("CompDecode should reject s=1, m=0")
 	}
